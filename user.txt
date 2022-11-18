@@ -1,0 +1,6 @@
+admin, adm1n
+matt, pass
+bob, passwords
+tim, fire
+teddy, iamdog
+terry, todd

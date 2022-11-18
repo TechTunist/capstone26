@@ -1,0 +1,8 @@
+admin, Register Users with taskManager.py, Use taskManager.py to add the usernames and passwords for all team members that will be using this program., 10 Oct 2019, 20 Oct 2019, No
+admin, Assign initial tasks, Use taskManager.py to assign each team member with appropriate tasks, 10 Oct 2019, 25 Oct 2019, No
+matt, jobsearch, find employment so I can support my family, 16 November 2022, yesterday, no
+bob, change the locks, change the locks at Buckingham Palace so we can gain entry and steal all the valuables, 16 November 2022, 25 Dec 2022, no
+tim, extinguish the fire, there is a fire burning at a hospital. We have to quickly take a diversity and inclusion class so we don't offend any of the nurses when we save them from the burning building, 16 November 2022, 7 May 2030, no
+ted, walk, go for a walk, 16 November 2022, today, no
+jeremy, rule, king jeremy the wicked has to rule this world, 16 November 2022, 1995, yes
+matt, capstone26, capstone task to edit this very program, 18 November 2022, today, yes
