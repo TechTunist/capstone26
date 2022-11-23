@@ -384,17 +384,69 @@ def generateReports(task_list, users):
                     count += 1
                     user_complete_dict[user] = count
 
-        print(user_complete_dict)
+        # print("COMPLETE", user_complete_dict)
                 
         for key, val in user_complete_dict.items():
             percent_complete = round((val/user_task_dict[key])*100, 2)
-            print(f"{key} has completed {val} tasks.\n")
+            print(f"{key} has completed {val} tasks.")
 
-            print(f"{key} has completed {percent_complete}% of tasks assigned.")
+            print(f"{key} has completed {percent_complete}% of tasks assigned.\n")
 
         # percentage of incomplete tasks for each user
+        incomplete = {}
+        
+        for i in task_list:
+            user = i['Assigned To']
+
+            # print(user, i['Task Complete'])
+            
+            if user not in incomplete:
+                no_count = 1
+                if i['Task Complete'] == 'no':
+                    incomplete[user] = no_count
+                    
+            elif user == i['Assigned To']:
+                if i['Task Complete'] == 'no':
+                    no_count += 1
+                    incomplete[user] = no_count
+                # print("NO COUNT", no_count)
+
+        # print("INCOMPLETE", incomplete)
+                
+        for key, val in incomplete.items():
+            percent_complete = round((val/user_task_dict[key])*100, 2)
+            print(f"{key} has {val} incomplete tasks.")
+
+            print(f"{percent_complete}% of {key}'s tasks are incomplete.\n")
+
 
         # percentage of overdue tasks for each user
+        overdue = {}
+        
+        for i in task_list:
+            user = i['Assigned To']
+
+            # print(user, i['Task Complete'])
+            
+            if user not in overdue:
+                past_due = 1
+                if today_date > i['Due Date']:
+                    overdue[user] = past_due
+                    
+            elif user == i['Assigned To']:
+                if today_date > i['Due Date']:
+                    past_due += 1
+                    overdue[user] = past_due
+                # print("NO COUNT", no_count)
+
+        # print("INCOMPLETE", incomplete)
+                
+        for key, val in overdue.items():
+            percent_past_due = round((val/user_task_dict[key])*100, 2)
+            print(key,val)
+            print(f"{key} has {val} tasks past due.")
+
+            print(f"{percent_past_due}% of {key}'s tasks are past due.\n")
 
 
 
