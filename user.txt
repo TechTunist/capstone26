@@ -1,8 +1,4 @@
 admin, adm1n
 matt, pass
-bob, passwords
-tim, fire
-teddy, iamdog
-terry, todd
-gareth, southgate
-bukayo, saks
+jak, jak
+annabelle, bear

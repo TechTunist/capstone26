@@ -1,0 +1,5 @@
+save the date as a datetime object for easy comparison
+print the date as a strftime("%d %B %Y") object
+
+
+

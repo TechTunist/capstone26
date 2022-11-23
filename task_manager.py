@@ -1,9 +1,10 @@
 #=====importing libraries===========
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
+from time import sleep
 
 #======= Define Functions ========#
 
-# create a dictionary of all users
+# create a dictionary of all users from a given text file
 def user_dict(filename):
 
     # create dictionary to store usernames and passwords
@@ -40,7 +41,7 @@ def all_tasks(filename):
     for i in range(len(tasks)):
         tokenised = tasks[i].split(', ')
 
-        # strip the newline character from the final word in each line
+        # strip the newline character from any elements in the line
         tokenised[5] = tokenised[5].strip('\n')
 
         # create a dictionary for each task, each loop
@@ -62,35 +63,33 @@ def all_tasks(filename):
 # function to write a new user to the user.txt file from user input
 def reg_user(user_dict):
 
-    if username == 'admin':
     # get user input for new username
-        new_user = input("\nEnter the new username: \n")
+    new_user = input("\nEnter the new username: \n").lower()
 
-        # check username does not already exist
-        if new_user in user_dict:
-            print("\nThis username is already in use\n")
-            
-        # get user input for new password
-        else:
-            new_pass = input("\nEnter the new password: \n")
-
-            # get user to enter password again and check they match
-            new_pass_check = input("\nEnter the password again to check for match: \n")
-
-            while new_pass != new_pass_check:
-                print("\nThe passwords do not match. Try again: \n")
-
-                new_pass_check = input("\nEnter the password again to check for match: \n")
-                
-            else:
-                # append 'a' new user details to user.txt
-                with open('user.txt', 'a') as f:
-                    f.write('\n' + new_user + ', ' + new_pass)
-                    pass
+    # check username does not already exist
+    if new_user in user_dict:
+        print("\nThis username is already in use\n")
+        
+    # get user input for new password
     else:
-        print("\nYou have to have administrator privileges to add users.\n")
+        new_pass = input("\nEnter the new password: \n")
+
+        # get user to enter password again and check they match
+        new_pass_check = input("\nEnter the password again to check for match: \n")
+
+        while new_pass != new_pass_check:
+            print("\nThe passwords do not match. Try again: \n")
+
+            new_pass_check = input("\nEnter the password again to check for match: \n")
+            
+        else:
+            # append 'a' new user details to user.txt
+            with open('user.txt', 'a') as f:
+                f.write('\n' + new_user + ', ' + new_pass)
+                pass
 
     return
+
 
 # function to add a new task to tasks.txt from user iput
 def add_task(user_dict):
@@ -110,7 +109,7 @@ def add_task(user_dict):
     # get description
     description = input("\nEnter a description of the task: \n")
 
-    # get the due date of the task
+    # get the due date of the task (cast to int if arithmetic action necessary)
     num_days = input("\nEnter the number of days you have to complete the task: \n")
 
     # get the completion status of the task
@@ -122,25 +121,19 @@ def add_task(user_dict):
     elif status.lower() == 'no':
         pass
     else:
-        print("Input error")
+        print("Input error. Please begin the process again.\nHINT: Make sure you type either 'yes' or 'no'.")
 
-        # get task status to add to new task
-        status = input("\nHas the task been completed? Enter 'yes' or 'no': \n")
-
-    # get the current date
-    today = date.today()
-    today_date = today.strftime("%d %B %Y")
+    # get the current date using our helper function
+    today_date = todaysDate()
     print(today_date)
 
-    # calculate the due date from the num days user input
-    due_date = today + timedelta(days=int(num_days))
-    # convert due_date to the correct format
-    due_date = due_date.strftime("%d %B %Y")
+    # calculate the due date from the num days user input, using our helper function
+    due_date = dateDelta(num_days)
 
     # write the new task to 'tasks.txt'
     with open('tasks.txt', 'a') as t:
         t.write('\n' + user + ', ' + title + ', ' + 
-        description + ', ' + today_date + ', ' + due_date + ', ' + status)
+        description + ', ' + str(today_date) + ', ' + str(due_date) + ', ' + status + ', ' + '\n')
 
     return
 
@@ -155,7 +148,7 @@ def view_all(task_list):
         print("\n", ("-" * 100))
 
         # present data in a readable format
-        print(f"Assigned To:\t\t\t{task_list[i]['Assigned To']}\nDate Assigned:\t\t\t{task_list[i]['Date Assigned']}\nDue Date:\t\t\t{task_list[i]['Due Date']}\nTask Complete:\t\t\t{task_list[i]['Task Complete']}\nTask Description:\n  {task_list[i]['Task Description']}")
+        print(f"Assigned To:\t\t\t{task_list[i]['Assigned To']}\nDate Assigned:\t\t\t{datetime.strptime(task_list[i]['Date Assigned'], '%Y-%m-%d').strftime('%d %B %Y')}\nDue Date:\t\t\t{datetime.strptime(task_list[i]['Due Date'], '%Y-%m-%d').strftime('%d %B %Y')}\nTask Complete:\t\t\t{task_list[i]['Task Complete']}\nTask Description:\n  {task_list[i]['Task Description']}")
 
     # create lower border
     print("-" * 100, '\n')
@@ -174,8 +167,8 @@ def view_mine(user, task_list):
 
     # loop over all tasks checking owner of task matches logged in user
     for i in range(len(task_list)):
-        # if task owner matches current user -
-        # - save the data as: {count: i} where i is the index of the task in 'task_list'
+        # if task owner matches current user...
+        # ...save the data as: {count: i} where i is the index of the task in 'task_list'
         if task_list[i]['Assigned To'] == user:
             indices[count] = i
             count += 1
@@ -183,8 +176,8 @@ def view_mine(user, task_list):
 
     # ask user to select to view all tasks, or a specific task by the user input number  
     selection = int(input("Select specific tasks by number, or type '0' to view all. Type '-1' to return to menu: \n"))
-
-    # if user enters -1, quit to main menu
+    print("--------------------------",selection, count, indices)
+    # if user enters -1, return to the main menu
     if selection == -1:
         return
 
@@ -195,7 +188,8 @@ def view_mine(user, task_list):
         printAllTasks(task_list, indices)
         
     # validation check that user selection is not higher than the number of tasks
-    elif selection > count:
+    elif selection > count-1:
+
         print("\nError. Selection not recognised.\n")
 
     # print the selected task in readable consistent format
@@ -207,14 +201,17 @@ def view_mine(user, task_list):
         # ask user if the task is complete
         complete = input("\nIs this task complete? Enter 'yes' or 'no': \n")
 
-        # if task not completed, set 'Task Complete' to 'no'
+        # if task is completed, set 'Task Complete' to 'yes'
         if complete.lower() == 'yes':
             task_list[indices[selection]]['Task Complete'] = complete
 
-            # writ echanges to file
-            writeChanges('test.txt', task_list)
+            # write echanges to file
+            writeChanges('tasks.txt', task_list)
         
         elif complete.lower() == 'no':
+
+            # set 'task complete' field to 'no'
+            task_list[indices[selection]]['Task Complete'] = complete
 
             # get input from user to edit task if desired
             edit = input("Would you like to edit the task? Type 'yes' or 'no': ")
@@ -233,13 +230,16 @@ def view_mine(user, task_list):
                     task_list[indices[selection]]['Assigned To'] = new_user                
                     
                 elif field == 'date':
-                    new_date = input("\nEnter the new due date: \n")
+                    num_days = input("\nEnter how many days you have from now to complete the task: \n")
                     
+                    # calculate the ne wdue date using our helper function 'dateDelta()'
+                    new_date = dateDelta(num_days)
+
                     # access the 'Due Date' value from the task at the user selected index 
                     task_list[indices[selection]]['Due Date'] = new_date
 
-                # write changes to file
-                writeChanges('test.txt', task_list)
+                # call function to write changes to file
+                writeChanges('tasks.txt', task_list)
         
             elif edit == 'no':
                 print('\n\nOkay, exiting back to main menu.....\n')
@@ -247,26 +247,28 @@ def view_mine(user, task_list):
             else:
                 print("\nError. Input not recognised.\n\n")
 
-            # write changes to file
-            writeChanges('test.txt', task_list)
+            # call function to write changes to file
+            writeChanges('tasks.txt', task_list)
 
+        # error message to notify user the input was not recognised
         else:
             print("\nError. Input not recognised.\n")
 
     return
 
+
 # function to print task in readable format, takes list of task dictionaries, index dictionary and user selection (integer)
 def printTask(task_list, indices, selection):
     
     # print out the task in readable form
-    print(f"\nAssigned To:\t\t\t{task_list[indices[selection]]['Assigned To']}\nDate Assigned:\t\t\t{task_list[indices[selection]]['Date Assigned']}\nDue Date:\t\t\t{task_list[indices[selection]]['Due Date']}\nTask Complete:\t\t\t{task_list[indices[selection]]['Task Complete']}\nTask Description:\n  {task_list[indices[selection]]['Task Description']}\n")
+    print(f"\nAssigned To:\t\t\t{task_list[indices[selection]]['Assigned To']}\nDate Assigned:\t\t\t{datetime.strptime(task_list[indices[selection]]['Date Assigned'], '%Y-%m-%d').strftime('%d %B %Y')}\nDue Date:\t\t\t{datetime.strptime(task_list[indices[selection]]['Due Date'], '%Y-%m-%d').strftime('%d %B %Y')}\nTask Complete:\t\t\t{task_list[indices[selection]]['Task Complete']}\nTask Description:\n  {task_list[indices[selection]]['Task Description']}\n")
 
 
 # function to print all tasks for specific user
 def printAllTasks(task_list, indices):
     # print tasks in readable consistent format
     for i in indices.values():
-        print(f"\nAssigned To:\t\t\t{task_list[i]['Assigned To']}\nDate Assigned:\t\t\t{task_list[i]['Date Assigned']}\nDue Date:\t\t\t{task_list[i]['Due Date']}\nTask Complete:\t\t\t{task_list[i]['Task Complete']}\nTask Description:\n  {task_list[i]['Task Description']}\n")
+        print(f"\nAssigned To:\t\t\t{task_list[i]['Assigned To']}\nDate Assigned:\t\t\t{datetime.strptime(task_list[i]['Date Assigned'], '%Y-%m-%d').strftime('%d %B %Y')}\nDue Date:\t\t\t{datetime.strptime(task_list[i]['Due Date'], '%Y-%m-%d').strftime('%d %B %Y')}\nTask Complete:\t\t\t{task_list[i]['Task Complete']}\nTask Description:\n  {task_list[i]['Task Description']}\n")
 
 
 # function to write changes to file
@@ -274,7 +276,7 @@ def writeChanges(filename, task_list):
     
     # write the amended task dictionaries to 'tasks.txt'
     # execute logic inside 'with' so as to be able to write each line without closing the file
-    with open('test.txt', 'w') as f:
+    with open(filename, 'w') as f:
         # loop through each task dictionary in 'task_list'
         for i in task_list:
             # create list to append elements in the correct order before writing to 'tasks.txt'
@@ -285,120 +287,166 @@ def writeChanges(filename, task_list):
             buffer.append(i['Date Assigned'])
             buffer.append(i['Due Date'])
             buffer.append(i['Task Complete'])
-            
+        
             # loop through the reorganised task, writing it to the tasks.txt file
             for j in buffer:
-                f.write(j + ', ')
-            
-            # after the final element in the task, create a newline
+                # dont write a comma and space to the final element in the list
+                if '\n' not in j:
+                    f.write(j + ', ')
+                else:
+                    f.write(j)
+        
+            # add a newline after every task
             f.write('\n')
+        
+        # print message to let user know file is being updated, in visually recognisable way
+        print("\n")
+        for i in range(0,3):
+            print("Writing changes....................")
+            sleep(0.5)
+    print("\nFile Updated\n")
 
+
+# function to return today's date
+def todaysDate():
+    today = date.today()
+    today_date = today.strftime("%d %B %Y")
+
+    return today
+
+
+# function to return the date in readable format in a given number of days
+def dateDelta(days):
+    today = date.today()
+
+    # calculate the due date from the num days user input
+    due_date = (today + timedelta(days=int(days)))
+    
+    return due_date
+
+print(dateDelta(10))
 
 # function to generate reports. Takes in task list and user dictionary
 def generateReports(task_list, users):
     
-    # task_overview.txt:
-        # get total number of tasks
-        total_tasks = len(task_list)
+    #=========== task_overview.txt ============#
 
-        # get total number of completed and incomplete tasks
-        tasks_complete = 0
-        tasks_incomplete = 0
+    # get total number of tasks
+    total_tasks = len(task_list)
 
-        for i in task_list:
-            if i['Task Complete'] == 'yes':
-                tasks_complete += 1
+    # get total number of completed and incomplete tasks
+    tasks_complete = 0
+    tasks_incomplete = 0
 
-            # get total number of incomplete tasks
-            else:
-                tasks_incomplete += 1
-        
-        # get total number of tasks that are incomplete and past their due date
-        # get todays date
-        today = date.today()
-        today_date = today.strftime("%d %B %Y")
+    for i in task_list:
+        if i['Task Complete'] == 'yes':
+            tasks_complete += 1
 
-        # count all past due tasks
-        past_due = 0
-        for i in task_list:
+        # get total number of incomplete tasks
+        else:
+            tasks_incomplete += 1
+    
+    # get total number of tasks that are incomplete and past their due date
+    # get todays date
+    today_date = todaysDate()
+    
+    # count all past due tasks
+    past_due = 0
+    for i in task_list:
+        # only count past due tasks it they are not complete
+        if i['Task Complete'] != 'yes':
             # compare dates to find past due tasks
-            if today_date > i['Due Date']:
+
+            # properly format date and datetime objects for comparison
+            if (today_date) > (datetime.strptime(i['Due Date'], '%Y-%m-%d')).date():
                 past_due += 1
         
-        # debugging
-        print(f"\n\nPast due: {past_due}\nTasks Complete: {tasks_complete}\nTasks incomplete: {tasks_incomplete}\n\n")
-            
-        # get the percentage of incomplete tasks
-        print(f"Percentage of incomplete tasks: {round((tasks_incomplete / total_tasks) * 100, 2)}%")
+    
+    # # debugging print to console
+    # print(f"\n\nTotal tasks: {total_tasks}\nTotal Tasks Past Due: {past_due}\nTotal tasks Complete: {tasks_complete}\nTotal Tasks Incomplete: {tasks_incomplete}\nPercentage of incomplete tasks: {round((tasks_incomplete / total_tasks) * 100, 2)}%\nPercentage of tasks overdue: {round((past_due / total_tasks) * 100, 2)}%\n\n")
 
-        # get the percentage of tasks that are overdue
-        print(f"Percentage of tasks overdue: {round((past_due / total_tasks) * 100, 2)}%")
+    # write to task_overview.txt:
+    with open('task_overview.txt', 'w') as f:
+        f.write(f"Total tasks: {total_tasks}\nTotal Tasks Past Due: {past_due}\nTotal tasks Complete: {tasks_complete}\nTotal Tasks Incomplete: {tasks_incomplete}\nPercentage of incomplete tasks: {round((tasks_incomplete / total_tasks) * 100, 2)}%\nPercentage of tasks overdue: {round((past_due / total_tasks) * 100, 2)}%")
 
-        # write to task_overview.txt:
-        with open('task_overview.txt', 'w') as f:
-            f.write(f"\n\nPast due: {past_due}\nTasks Complete: {tasks_complete}\nTasks incomplete: {tasks_incomplete}\n\n")
+    #=========== task_overview.txt End ============#
 
 
-    # user_overview.txt:
+
+    #============= user_overview.txt ==================
+
         # total number of users registered
         total_users = len(users)
 
         # total number of tasks
         total_tasks = len(task_list)
 
+        # print total number of users
+        print(f"Total number of users: {total_users}")
+
+        # print total number of tasks
+        print(f"Total number of tasks: {total_tasks}")
+
         # total tasks for each user
         # create a dictionary that holds the username as key and the number of related tasks as value
         user_task_dict = {}
         
         for i in task_list:
+            
             user = i['Assigned To']
             if user not in user_task_dict:
                 count = 1
                 user_task_dict[user] = count
-            elif user == i['Assigned To']:
-                count += 1
+            else:
+                count = 2
                 user_task_dict[user] = count
-        # print(f"Tasks per user: {user_task_dict}")
+            count += 1
 
-        # for key, val in user_task_dict.items():
-        #     print(f"{key} has a total of {val} tasks.")
+        # loop through the user task dictionary, printing out the number of tasks per user
+        print("\n")
+        for key, val in user_task_dict.items():
+            print(f"The user {key}'s total tasks: {val}")
 
 
         # percentage of tasks assigned to each user
+        print("\n")
         for key, val in user_task_dict.items():
             percent = (val/len(task_list)*100)
-            # print(f"{key} has {percent}% of the total assigned tasks.")
+            print(f"{key} has {round(percent, 2)}% of the total assigned tasks.")
 
         # percentage of tasks assigned to each user that are completed
         user_complete_dict = {}
-        count = 1
         for i in task_list:
             user = i['Assigned To']
             
             if user not in user_complete_dict:
                 if i['Task Complete'] == 'yes':
+                    count = 1
                     user_complete_dict[user] = count
                     
             elif user == i['Assigned To']:
                 if i['Task Complete'] == 'yes':
-                    count += 1
+                    count = 2
                     user_complete_dict[user] = count
+            count += 1
 
-        # print("COMPLETE", user_complete_dict)
-                
+        # add users with 0 completed tasks
+        for i in task_list:
+            user = i['Assigned To']
+            if user not in user_complete_dict:
+                user_complete_dict[user] = 0
+
+        # the percentage of a user's tasks that are complete 
         for key, val in user_complete_dict.items():
             percent_complete = round((val/user_task_dict[key])*100, 2)
-            print(f"{key} has completed {val} tasks.")
-
             print(f"{key} has completed {percent_complete}% of tasks assigned.\n")
+
 
         # percentage of incomplete tasks for each user
         incomplete = {}
         
         for i in task_list:
             user = i['Assigned To']
-
-            # print(user, i['Task Complete'])
             
             if user not in incomplete:
                 no_count = 1
@@ -407,75 +455,138 @@ def generateReports(task_list, users):
                     
             elif user == i['Assigned To']:
                 if i['Task Complete'] == 'no':
-                    no_count += 1
+                    no_count = 2
                     incomplete[user] = no_count
-                # print("NO COUNT", no_count)
+            no_count += 1
+        
+        # add users with 0 incomplete
+        for i in task_list:
+            user = i['Assigned To']
+            if user not in incomplete:
+                incomplete[user] = 0
 
-        # print("INCOMPLETE", incomplete)
-                
+        # the percentage of a user's tasks that aren't complete
         for key, val in incomplete.items():
             percent_complete = round((val/user_task_dict[key])*100, 2)
-            print(f"{key} has {val} incomplete tasks.")
-
             print(f"{percent_complete}% of {key}'s tasks are incomplete.\n")
-
 
         # percentage of overdue tasks for each user
         overdue = {}
-        
+        past_due = 1
         for i in task_list:
             user = i['Assigned To']
 
-            # print(user, i['Task Complete'])
-            
+            if i['Task Complete'] == 'no':
+                if user not in overdue:
+                    # properly format date and datetime objects for comparison
+                    if (today_date) > (datetime.strptime(i['Due Date'], '%Y-%m-%d')).date():
+                        overdue[user] = past_due
+                        
+                else:
+                    if (today_date) > (datetime.strptime(i['Due Date'], '%Y-%m-%d')).date():
+                        past_due += 1
+                        overdue[user] = past_due
+        
+        # add users with 0 overdue tasks
+        for i in task_list:
+            user = i['Assigned To']
             if user not in overdue:
-                past_due = 1
-                if today_date > i['Due Date']:
-                    overdue[user] = past_due
-                    
-            elif user == i['Assigned To']:
-                if today_date > i['Due Date']:
-                    past_due += 1
-                    overdue[user] = past_due
-                # print("NO COUNT", no_count)
+                overdue[user] = 0
 
-        # print("INCOMPLETE", incomplete)
-                
+        # print percent of a user's tasks that arent complete and are past due
         for key, val in overdue.items():
             percent_past_due = round((val/user_task_dict[key])*100, 2)
-            print(key,val)
-            print(f"{key} has {val} tasks past due.")
-
             print(f"{percent_past_due}% of {key}'s tasks are past due.\n")
 
 
+    # write output in readable format to 'user_overview.txt' file
+    with open('user_overview.txt', 'w') as f:
+        f.write(f"Total number of registered users: {total_users}\nTotal number of tasks: {total_tasks}\n\nTotal Tasks Assigned to each User:\n")
 
-#====Login Section====
+        # total tasks for each user
+        for key, val in user_task_dict.items():
+            f.write(f"\t{key}: {val}\n")
+
+        # percent of tasks assigned to each user
+        f.write("\nPercentage of Tasks Assigned to Each User:\n")
+
+        for key, val in user_task_dict.items():
+            percent = (val/len(task_list)*100)
+            f.write(f"\t{key} has {round(percent, 2)}% of the total assigned tasks.\n")
+
+        # percent of tasks completed by each user
+        f.write("\nPercentage of Tasks Completed by Each User:\n")
+
+        for key, val in user_complete_dict.items():
+            percent_complete = round((val/user_task_dict[key])*100, 2)
+            f.write(f"\t{key} has completed {percent_complete}% of tasks assigned.\n")
+
+        # percent of tasks still to be completed
+        f.write("\nPercentage of Tasks Yet to be Completed by Each User:\n")
+
+        for key, val in incomplete.items():
+            percent_complete = round((val/user_task_dict[key])*100, 2)
+            f.write(f"\t{percent_complete}% of {key}'s tasks are incomplete.\n")
+
+        # percent of overdue tasks yet to be completed
+        f.write("\nPercentage of Tasks Yet to be Completed that are Overdue:\n")
+
+        for key, val in overdue.items():
+            percent_past_due = round((val/user_task_dict[key])*100, 2)
+            f.write(f"\t{percent_past_due}% of {key}'s tasks are past due.\n")
+
+        
+
+
+# function to show statistics
+def showStats():
+
+        # get total number of tasks
+        with open('tasks.txt', 'r') as t:
+            num_tasks = len(t.readlines())
+
+        # get total number of users
+        with open('user.txt', 'r') as u:
+            num_users = len(u.readlines())
+
+        print(f"\nThere are {num_tasks} tasks.")
+        print(f"\nThere are {num_users} users.\n")
+
+
+
+#============= Login Section ============#
 
 # get user dictionary from 
 users = user_dict('user.txt')
 
 # ask user for username
-username = input("Enter your username: \n")
+username = input("Enter your username: \n").lower()
 
 # check username exists in the dictionary
 while username.lower() not in users:
     print("Your username is not recognised")
 
-    username = input("Enter your username: \n")
+    # username should not be case sensitive
+    username = input("Enter your username: \n").lower()
 
 # ask user for password
 password = input("Enter your password: \n")
 
 # check user password against dictionary
-while password.lower() != users[username]:
+while password != users[username]:
     print("Your password is not recognised")
     
+    # password should be case sensitive
     password = input("Enter your password: \n")
 
+#============= Login Section End ============#
 
+
+
+#============= Show Menu ============#
 while True:
 
+    # check whether to show admin or regular user menu
     if username.lower() == 'admin':
         menu = input('''Select one of the following options below\n:
                     s - show stats
@@ -497,15 +608,26 @@ while True:
                         vm - view my task
                         e - Exit
     : ''').lower()
+
+    #============= Show Menu End ============#
     
 
-    # add new user if admin
+    #============= Process User Choice ==============#
+
+    # add new user if current user is admin
     if menu == 'r':
 
-        # get latest user dictionary
-        users = user_dict('user.txt')
+        # if current user is admin:
+        if username.lower() == 'admin':
+            # get latest user dictionary
+            users = user_dict('user.txt')
 
-        reg_user(users)
+            # call the register user function
+            reg_user(users)
+        
+        # print error message if use does not have admin privileges
+        else:
+            print(f"\nThe user '{username}' does not have admin privileges, and cannot add new users.\n")
 
     # add new task
     elif menu == 'a':
@@ -536,20 +658,14 @@ while True:
 
     # display total users and total tasks
     elif menu == 's':
+        # if current user is admin:
+        if username.lower() == 'admin':
 
-        # get total number of tasks
-        with open('tasks.txt', 'r') as t:
-            num_tasks = len(t.readlines())
-
-        # get total number of users
-        with open('user.txt', 'r') as u:
-            num_users = len(u.readlines())
-
-        print(f"\nThere are {num_tasks} tasks.")
-        print(f"\nThere are {num_users} users.\n")
+            # call the show stats function
+            showStats()
 
 
-    # generate reports to 2 files
+    # generate reports to 2 text files, 'task_overview' and 'user_overview'
     elif menu == 'gr':
 
         # get all tasks
@@ -558,9 +674,12 @@ while True:
         # get all users
         users = user_dict('user.txt')
 
+        # call the generate reports function
         generateReports(task_list, users)
 
 
     # error handling
     else:
         print("\nYou have made a wrong choice, Please Try again\n")
+
+    #============= Process User Choice End ==============#
