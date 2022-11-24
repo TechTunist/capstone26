@@ -1,32 +1,32 @@
 Total number of registered users: 4
-Total number of tasks: 8
+Total number of tasks: 11
 
 Total Tasks Assigned to each User:
 	jak: 2
-	matt: 2
+	matt: 4
 	annabelle: 1
-	admin: 2
+	admin: 4
 
 Percentage of Tasks Assigned to Each User:
-	jak has 25.0% of the total assigned tasks.
-	matt has 25.0% of the total assigned tasks.
-	annabelle has 12.5% of the total assigned tasks.
-	admin has 25.0% of the total assigned tasks.
+	jak has 18.18% of the total assigned tasks.
+	matt has 36.36% of the total assigned tasks.
+	annabelle has 9.09% of the total assigned tasks.
+	admin has 36.36% of the total assigned tasks.
 
 Percentage of Tasks Completed by Each User:
 	jak has completed 50.0% of tasks assigned.
-	admin has completed 50.0% of tasks assigned.
-	matt has completed 0.0% of tasks assigned.
+	matt has completed 25.0% of tasks assigned.
 	annabelle has completed 0.0% of tasks assigned.
+	admin has completed 0.0% of tasks assigned.
 
 Percentage of Tasks Yet to be Completed by Each User:
-	100.0% of matt's tasks are incomplete.
+	75.0% of matt's tasks are incomplete.
 	100.0% of annabelle's tasks are incomplete.
-	50.0% of admin's tasks are incomplete.
-	50.0% of jak's tasks are incomplete.
+	100.0% of admin's tasks are incomplete.
+	0.0% of jak's tasks are incomplete.
 
 Percentage of Tasks Yet to be Completed that are Overdue:
-	50.0% of admin's tasks are past due.
-	50.0% of matt's tasks are past due.
+	25.0% of admin's tasks are past due.
+	25.0% of matt's tasks are past due.
 	0.0% of jak's tasks are past due.
 	0.0% of annabelle's tasks are past due.

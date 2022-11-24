@@ -36,26 +36,30 @@ def all_tasks(filename):
     # 'task_list' will be a list of dictionaries 
     task_list = []
 
-    # loop through each task in the list, creating a dictionary for each one -
-    # append the created dictionary to 'task_list'
-    for i in range(len(tasks)):
-        tokenised = tasks[i].split(', ')
+    # check for empty lines in the file
+    for line in tasks:
+        if (line.strip() != ''):
 
-        # strip the newline character from any elements in the line
-        tokenised[5] = tokenised[5].strip('\n')
+            # loop through each task in the list, creating a dictionary for each one -
+            # append the created dictionary to 'task_list'
 
-        # create a dictionary for each task, each loop
-        i = {}   
+            tokenised = line.split(', ')
 
-        i['Task'] = tokenised[1]
-        i['Assigned To'] = tokenised[0]
-        i['Date Assigned'] = tokenised[3]
-        i['Due Date'] = tokenised[4]
-        i['Task Complete'] = tokenised[5]
-        i['Task Description'] = tokenised[2]
+            # strip the newline character from any elements in the line
+            tokenised[5] = tokenised[5].strip('\n')
 
-        # append the dictionary for each task to 'task__list'
-        task_list.append(i)
+            # create a dictionary for each task, each loop
+            i = {}   
+
+            i['Task'] = tokenised[1]
+            i['Assigned To'] = tokenised[0]
+            i['Date Assigned'] = tokenised[3]
+            i['Due Date'] = tokenised[4]
+            i['Task Complete'] = tokenised[5]
+            i['Task Description'] = tokenised[2]
+
+            # append the dictionary for each task to 'task__list'
+            task_list.append(i)
 
     return task_list
 
@@ -361,10 +365,6 @@ def generateReports(task_list, users):
             if (today_date) > (datetime.strptime(i['Due Date'], '%Y-%m-%d')).date():
                 past_due += 1
         
-    
-    # # debugging print to console
-    # print(f"\n\nTotal tasks: {total_tasks}\nTotal Tasks Past Due: {past_due}\nTotal tasks Complete: {tasks_complete}\nTotal Tasks Incomplete: {tasks_incomplete}\nPercentage of incomplete tasks: {round((tasks_incomplete / total_tasks) * 100, 2)}%\nPercentage of tasks overdue: {round((past_due / total_tasks) * 100, 2)}%\n\n")
-
     # write to task_overview.txt:
     with open('task_overview.txt', 'w') as f:
         f.write(f"Total tasks: {total_tasks}\nTotal Tasks Past Due: {past_due}\nTotal tasks Complete: {tasks_complete}\nTotal Tasks Incomplete: {tasks_incomplete}\nPercentage of incomplete tasks: {round((tasks_incomplete / total_tasks) * 100, 2)}%\nPercentage of tasks overdue: {round((past_due / total_tasks) * 100, 2)}%")
@@ -381,39 +381,39 @@ def generateReports(task_list, users):
         # total number of tasks
         total_tasks = len(task_list)
 
-        # print total number of users
-        print(f"Total number of users: {total_users}")
-
-        # print total number of tasks
-        print(f"Total number of tasks: {total_tasks}")
-
         # total tasks for each user
         # create a dictionary that holds the username as key and the number of related tasks as value
-        user_task_dict = {}
+        # user_task_dict = {}
         
-        for i in task_list:
+        # for i in task_list:
             
+        #     user = i['Assigned To']
+        #     if user not in user_task_dict:
+        #         count = 1
+        #         user_task_dict[user] = count
+        #     else:
+        #         count = 2
+        #         user_task_dict[user] = count
+        #     count += 1
+        
+        total_user_tasks = dict()
+
+        for i in task_list:
             user = i['Assigned To']
-            if user not in user_task_dict:
-                count = 1
-                user_task_dict[user] = count
+            if user not in total_user_tasks:
+                total_user_tasks[user] = 1
+                    
             else:
-                count = 2
-                user_task_dict[user] = count
-            count += 1
+                total_user_tasks[user] = total_user_tasks.get(user, 0) + 1
 
-        # loop through the user task dictionary, printing out the number of tasks per user
-        print("\n")
-        for key, val in user_task_dict.items():
-            print(f"The user {key}'s total tasks: {val}")
+        print(total_user_tasks)     
 
-
-        # percentage of tasks assigned to each user
-        print("\n")
-        for key, val in user_task_dict.items():
-            percent = (val/len(task_list)*100)
-            print(f"{key} has {round(percent, 2)}% of the total assigned tasks.")
-
+        # add users with 0 assigned tasks
+        for i in task_list:
+            user = i['Assigned To']
+            if user not in total_user_tasks:
+                total_user_tasks[user] = 0         
+                    
         # percentage of tasks assigned to each user that are completed
         user_complete_dict = {}
         for i in task_list:
@@ -436,39 +436,23 @@ def generateReports(task_list, users):
             if user not in user_complete_dict:
                 user_complete_dict[user] = 0
 
-        # the percentage of a user's tasks that are complete 
-        for key, val in user_complete_dict.items():
-            percent_complete = round((val/user_task_dict[key])*100, 2)
-            print(f"{key} has completed {percent_complete}% of tasks assigned.\n")
-
-
         # percentage of incomplete tasks for each user
-        incomplete = {}
-        
+        incomplete = dict()
+
         for i in task_list:
             user = i['Assigned To']
-            
             if user not in incomplete:
-                no_count = 1
                 if i['Task Complete'] == 'no':
-                    incomplete[user] = no_count
+                    incomplete[user] = 1
+            else:
+                if i['Task Complete'] == 'no':
+                    incomplete[user] = incomplete.get(user, 0) + 1
                     
-            elif user == i['Assigned To']:
-                if i['Task Complete'] == 'no':
-                    no_count = 2
-                    incomplete[user] = no_count
-            no_count += 1
-        
         # add users with 0 incomplete
         for i in task_list:
             user = i['Assigned To']
             if user not in incomplete:
                 incomplete[user] = 0
-
-        # the percentage of a user's tasks that aren't complete
-        for key, val in incomplete.items():
-            percent_complete = round((val/user_task_dict[key])*100, 2)
-            print(f"{percent_complete}% of {key}'s tasks are incomplete.\n")
 
         # percentage of overdue tasks for each user
         overdue = {}
@@ -493,24 +477,19 @@ def generateReports(task_list, users):
             if user not in overdue:
                 overdue[user] = 0
 
-        # print percent of a user's tasks that arent complete and are past due
-        for key, val in overdue.items():
-            percent_past_due = round((val/user_task_dict[key])*100, 2)
-            print(f"{percent_past_due}% of {key}'s tasks are past due.\n")
-
 
     # write output in readable format to 'user_overview.txt' file
     with open('user_overview.txt', 'w') as f:
         f.write(f"Total number of registered users: {total_users}\nTotal number of tasks: {total_tasks}\n\nTotal Tasks Assigned to each User:\n")
 
         # total tasks for each user
-        for key, val in user_task_dict.items():
+        for key, val in total_user_tasks.items():
             f.write(f"\t{key}: {val}\n")
 
         # percent of tasks assigned to each user
         f.write("\nPercentage of Tasks Assigned to Each User:\n")
 
-        for key, val in user_task_dict.items():
+        for key, val in total_user_tasks.items():
             percent = (val/len(task_list)*100)
             f.write(f"\t{key} has {round(percent, 2)}% of the total assigned tasks.\n")
 
@@ -518,21 +497,21 @@ def generateReports(task_list, users):
         f.write("\nPercentage of Tasks Completed by Each User:\n")
 
         for key, val in user_complete_dict.items():
-            percent_complete = round((val/user_task_dict[key])*100, 2)
+            percent_complete = round((val/total_user_tasks[key])*100, 2)
             f.write(f"\t{key} has completed {percent_complete}% of tasks assigned.\n")
 
         # percent of tasks still to be completed
         f.write("\nPercentage of Tasks Yet to be Completed by Each User:\n")
 
         for key, val in incomplete.items():
-            percent_complete = round((val/user_task_dict[key])*100, 2)
+            percent_complete = round((val/total_user_tasks[key])*100, 2)
             f.write(f"\t{percent_complete}% of {key}'s tasks are incomplete.\n")
 
         # percent of overdue tasks yet to be completed
         f.write("\nPercentage of Tasks Yet to be Completed that are Overdue:\n")
 
         for key, val in overdue.items():
-            percent_past_due = round((val/user_task_dict[key])*100, 2)
+            percent_past_due = round((val/total_user_tasks[key])*100, 2)
             f.write(f"\t{percent_past_due}% of {key}'s tasks are past due.\n")
 
         
@@ -676,6 +655,9 @@ while True:
 
         # call the generate reports function
         generateReports(task_list, users)
+
+        # let user know the files have been updated
+        print(f"\n'task_overview.txt' and 'user_overview.txt' FILES UPDATED\n")
 
 
     # error handling
