@@ -136,7 +136,7 @@ def add_task(user_dict):
 
     # write the new task to 'tasks.txt'
     with open('tasks.txt', 'a') as t:
-        t.write('\n' + user + ', ' + title + ', ' + 
+        t.write(user + ', ' + title + ', ' + 
         description + ', ' + str(today_date) + ', ' + str(due_date) + ', ' + status + ', ' + '\n')
 
     return
@@ -180,7 +180,7 @@ def view_mine(user, task_list):
 
     # ask user to select to view all tasks, or a specific task by the user input number  
     selection = int(input("Select specific tasks by number, or type '0' to view all. Type '-1' to return to menu: \n"))
-    print("--------------------------",selection, count, indices)
+    
     # if user enters -1, return to the main menu
     if selection == -1:
         return
@@ -405,8 +405,6 @@ def generateReports(task_list, users):
                     
             else:
                 total_user_tasks[user] = total_user_tasks.get(user, 0) + 1
-
-        print(total_user_tasks)     
 
         # add users with 0 assigned tasks
         for i in task_list:
@@ -647,17 +645,22 @@ while True:
     # generate reports to 2 text files, 'task_overview' and 'user_overview'
     elif menu == 'gr':
 
-        # get all tasks
-        task_list = all_tasks('tasks.txt')
+        if username.lower() == 'admin':
 
-        # get all users
-        users = user_dict('user.txt')
+            # get all tasks
+            task_list = all_tasks('tasks.txt')
 
-        # call the generate reports function
-        generateReports(task_list, users)
+            # get all users
+            users = user_dict('user.txt')
 
-        # let user know the files have been updated
-        print(f"\n'task_overview.txt' and 'user_overview.txt' FILES UPDATED\n")
+            # call the generate reports function
+            generateReports(task_list, users)
+
+            # let user know the files have been updated
+            print(f"\n'task_overview.txt' and 'user_overview.txt' FILES UPDATED\n")
+
+        else:
+            print("\nYou do not have admin privileges. Choose another option.\n")
 
 
     # error handling
